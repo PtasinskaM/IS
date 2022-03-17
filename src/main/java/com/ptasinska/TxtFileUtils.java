@@ -1,11 +1,11 @@
-package com.ptasinska.lab1;
+package com.ptasinska;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 
-public class App {
+public class TxtFileUtils {
     public static void insertValue(String value){
         int length = value.length();
         System.out.print(" " + value);
@@ -23,7 +23,7 @@ public class App {
         InputStreamReader isr = null;
 
         try{
-            isr = new InputStreamReader(Objects.requireNonNull(App.class.getResourceAsStream("/" + filename)));
+            isr = new InputStreamReader(Objects.requireNonNull(TxtFileUtils.class.getResourceAsStream("/" + filename)));
         }
         catch(NullPointerException e){
             System.err.println("Nie znaleziono pliku o podanej nazwie!");
@@ -84,6 +84,7 @@ public class App {
 
         try {
             isr.close();
+            br.close();
         } catch (IOException e) {
             System.err.println("Błąd przy zamykaniu pliku!");
         }
@@ -98,7 +99,4 @@ public class App {
         System.out.println("Samsung: "+nByManufacturer[6]);
     }
 
-    public static void main(String[] args) {
-        prepareFile("katalog.txt");
-    }
 }
