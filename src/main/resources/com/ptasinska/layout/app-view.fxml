@@ -9,13 +9,16 @@
 <VBox xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.ptasinska.controller.AppController"
-            prefHeight="400.0" prefWidth="600.0" fx:id="view">
-    <HBox minHeight="50">
-        <children>
-            <Button fx:id="importButton" text="Importuj" prefHeight="50" prefWidth="100" onAction="#onImportButtonClick"/>
-            <Button fx:id="exportButton" text="Eksportuj" prefHeight="50" prefWidth="100" onAction="#onExportButtonClick"/>
-        </children>
-    </HBox>
-    <TableView fx:id="table" prefHeight="700" prefWidth="1366"/>
+            prefHeight="400.0" prefWidth="600.0" fx:id="view"
+            stylesheets="@style.css">
+    <children>
+        <HBox minHeight="50">
+            <children>
+                <Button fx:id="importButton" text="Importuj" prefHeight="50" prefWidth="100" onAction="#onImportButtonClick" />
+                <Button fx:id="exportButton" text="Eksportuj" prefHeight="50" prefWidth="100" onAction="#onExportButtonClick"/>
+            </children>
+        </HBox>
 
+        <TableView fx:id="table" prefHeight="700" prefWidth="1366"/>
+    </children>
 </VBox>

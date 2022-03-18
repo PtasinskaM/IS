@@ -2,6 +2,8 @@ package com.ptasinska.controller;
 
 import com.ptasinska.TxtFileUtils;
 import com.ptasinska.data.Laptop;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -13,9 +15,13 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -23,27 +29,50 @@ public class AppController implements Initializable {
 
     @FXML
     public VBox view;
+    @FXML
     public TableView<Laptop> table;
     private final FileChooser chooser = new FileChooser();
     private final Pattern diskPattern = Pattern.compile("\\b\\d{1,4}GB|\\d{1,2}TB\\b");
 
+    @FXML
     public void onImportButtonClick() {
-        showDialog(Alert.AlertType.ERROR, "tytuł", "treść");
+        File file = chooser.showOpenDialog(new Stage());
+        String filePath = "";
+        if(file!=null){
+            filePath = file.getAbsolutePath();
+            List<Laptop> laptops = TxtFileUtils.readFromFile(filePath);
+            table.getItems().setAll(laptops);
+        }
     }
 
+    @FXML
     public void onExportButtonClick() {
+        File file = chooser.showSaveDialog(new Stage());
+        String filePath = "";
+        if(file!=null){
+            filePath = file.getAbsolutePath();
+            List<Laptop> laptops = table.getItems();
+            boolean success = TxtFileUtils.saveToFile(filePath, laptops);
+            if (success) {
+                showDialog(Alert.AlertType.INFORMATION, "Zapisano", "Pomyślnie eksportowano do pliku txt");
+            } else {
+                showDialog(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas eksportu do pliku txt");
+            }
+        }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         chooser.setInitialFileName("export.txt");
-        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("*.*","txt"));
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("*.*","*.txt");
+        chooser.setSelectedExtensionFilter(filter);
+        chooser.setInitialDirectory(new File("C:\\Users\\monik\\Documents\\studia\\V rok\\IS\\App\\src\\main\\resources"));
         table.setPlaceholder(new Label("Brak danych"));
         String[] headers = TxtFileUtils.HEADERS;
 
         //create table columns
         for (int i = 0; i < headers.length; i++) {
-            TableColumn column = new TableColumn();
+            TableColumn column = new TableColumn<>();
             column.setText(headers[i]);
             if(i==0){
                 column.setEditable(false);
@@ -61,8 +90,37 @@ public class AppController implements Initializable {
             }
             else{
                 column.setEditable(true);
-                column.setPrefWidth(80);
+                column.setPrefWidth(89);
             }
+
+            int temp = i;
+            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Laptop, String>, ObservableValue<String>>() {
+                @Override
+                public ObservableValue call(TableColumn.CellDataFeatures<Laptop,String> cdf) {
+                    switch (temp){
+                        case 0: return new SimpleStringProperty(String.valueOf(cdf.getValue().getId()));
+                        case 1: return new SimpleStringProperty(String.valueOf(cdf.getValue().getManufacturer()));
+                        case 2: return new SimpleStringProperty(String.valueOf(cdf.getValue().getDiagonal()));
+                        case 3: return new SimpleStringProperty(String.valueOf(cdf.getValue().getResolution()));
+                        case 4: return new SimpleStringProperty(String.valueOf(cdf.getValue().getSurface()));
+                        case 5: return new SimpleStringProperty(String.valueOf(cdf.getValue().getTouchscreen()));
+                        case 6: return new SimpleStringProperty(String.valueOf(cdf.getValue().getCpu()));
+                        case 7: return new SimpleStringProperty(String.valueOf(cdf.getValue().getCpuCores()));
+                        case 8: return new SimpleStringProperty(String.valueOf(cdf.getValue().getClockspeed()));
+                        case 9: return new SimpleStringProperty(String.valueOf(cdf.getValue().getRamSize()));
+                        case 10: return new SimpleStringProperty(String.valueOf(cdf.getValue().getDiskSize()));
+                        case 11: return new SimpleStringProperty(String.valueOf(cdf.getValue().getDiskType()));
+                        case 12: return new SimpleStringProperty(String.valueOf(cdf.getValue().getGpu()));
+                        case 13: return new SimpleStringProperty(String.valueOf(cdf.getValue().getGpuMemory()));
+                        case 14: return new SimpleStringProperty(String.valueOf(cdf.getValue().getOs()));
+                        case 15: return new SimpleStringProperty(String.valueOf(cdf.getValue().getDriveType()));
+                        default: return  new SimpleStringProperty();
+                    }
+                }
+            });
+
+
+
 
             column.setCellFactory(TextFieldTableCell.forTableColumn());
             //cell edit
@@ -85,7 +143,7 @@ public class AppController implements Initializable {
                         correct=false;
                         showDialog(Alert.AlertType.WARNING, "Błąd", "Pole może zawierać jedynie wartości: [tak|nie]");
                     }
-                    else if(col==10 && newValue.matches(diskPattern.pattern())){
+                    else if(col==10 && !newValue.matches(diskPattern.pattern())){
                         correct=false;
                         showDialog(Alert.AlertType.WARNING, "Błąd", "Pole musi zawierać wartości wg. wzoru: [LICZBA][GB|TB]");
                     }
@@ -97,36 +155,18 @@ public class AppController implements Initializable {
                         event.getTableView().getItems().set(row, laptop);
                     }
                     //save changes
-                    laptop.setValueAt(col, newValue);
+                    else laptop.setValueAt(col, newValue);
                 }
             });
 
-            switch (i){
-                case 0: column.setCellValueFactory(new PropertyValueFactory<>("id"));  break;
-                case 1: column.setCellValueFactory(new PropertyValueFactory<>("manufacturer"));  break;
-                case 2: column.setCellValueFactory(new PropertyValueFactory<>("diagonal"));  break;
-                case 3: column.setCellValueFactory(new PropertyValueFactory<>("resolution"));  break;
-                case 4: column.setCellValueFactory(new PropertyValueFactory<>("surface"));  break;
-                case 5: column.setCellValueFactory(new PropertyValueFactory<>("touchscreen"));  break;
-                case 6: column.setCellValueFactory(new PropertyValueFactory<>("cpu"));  break;
-                case 7: column.setCellValueFactory(new PropertyValueFactory<>("cpuCores"));  break;
-                case 8: column.setCellValueFactory(new PropertyValueFactory<>("clockspeed"));  break;
-                case 9: column.setCellValueFactory(new PropertyValueFactory<>("ramSize"));  break;
-                case 10: column.setCellValueFactory(new PropertyValueFactory<>("diskSize"));  break;
-                case 11: column.setCellValueFactory(new PropertyValueFactory<>("diskType"));  break;
-                case 12: column.setCellValueFactory(new PropertyValueFactory<>("gpu"));  break;
-                case 13: column.setCellValueFactory(new PropertyValueFactory<>("gpuMemory"));  break;
-                case 14: column.setCellValueFactory(new PropertyValueFactory<>("os"));  break;
-                case 15: column.setCellValueFactory(new PropertyValueFactory<>("driveType"));  break;
-            }
-
+            table.getColumns().add(column);
         }
         table.setEditable(true);
         //add row on double click
         table.setRowFactory(tableRow -> {
             TableRow<Laptop> row = new TableRow<>();
             row.setOnMouseClicked(e -> {
-                if(e.getClickCount()==2 && row.isEmpty()){
+                if(e.getClickCount()==2 && (row.isEmpty())){
                     addNewRow();
                 }
             });
@@ -155,9 +195,11 @@ public class AppController implements Initializable {
 
     private void addNewRow() {
         TablePosition position = table.getFocusModel().getFocusedCell();
+        int row = table.getItems().size();
+        Laptop laptop = new Laptop(row+1);
         table.getSelectionModel().clearSelection();
-        Laptop laptop = new Laptop(position.getRow()+1);
-        table.getSelectionModel().select(position.getRow()+1, position.getTableColumn());
+        table.getItems().add(laptop);
+        table.getSelectionModel().select(row, position.getTableColumn());
         table.scrollTo(laptop);
     }
 

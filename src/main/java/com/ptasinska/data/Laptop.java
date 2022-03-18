@@ -24,6 +24,9 @@ public class Laptop {
     private String driveType;
 
     public Laptop(int id, String[] data) {
+        for(int i=0;i<data.length;i++){
+            if(data[i].trim().isEmpty()) data[i]="Brak informacji";
+        }
         this.id = id;
         this.manufacturer = data[0];
         this.diagonal = data[1];
