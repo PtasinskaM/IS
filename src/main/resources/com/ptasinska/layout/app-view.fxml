@@ -14,8 +14,11 @@
     <children>
         <HBox minHeight="50">
             <children>
-                <Button fx:id="importButton" text="Importuj" prefHeight="50" prefWidth="100" onAction="#onImportButtonClick" />
-                <Button fx:id="exportButton" text="Eksportuj" prefHeight="50" prefWidth="100" onAction="#onExportButtonClick"/>
+                <Button fx:id="importTxtButton" text="Importuj txt" prefHeight="50" prefWidth="100" onAction="#importFromTxt" />
+                <Button fx:id="importXmlButton" text="Importuj xml" prefHeight="50" prefWidth="100" onAction="#importFromXml" />
+                <Button fx:id="exportTxtButton" text="Eksportuj txt" prefHeight="50" prefWidth="100" onAction="#exportToTxt"/>
+                <Button fx:id="exportXmlButton" text="Eksportuj xml" prefHeight="50" prefWidth="100" onAction="#exportToXml"/>
+
             </children>
         </HBox>
 

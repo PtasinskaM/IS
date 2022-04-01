@@ -1,7 +1,6 @@
 package com.ptasinska;
 
-import com.ptasinska.data.Laptop;
-import com.ptasinska.data.Laptops;
+import com.ptasinska.data.*;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -72,14 +71,14 @@ public class FileUtils {
         }
     }
 
-    public List<Laptop> readFromXml(File file){
+    public static List<Laptop> readFromXml(File file){
         List<Laptop> result = new ArrayList<>();
         try {
             JAXBContext context = JAXBContext.newInstance(Laptops.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
-
             Laptops items = (Laptops) unmarshaller.unmarshal(file);
             for(Laptop item : items.getLaptops()){
+                item = Laptop.checkObjectFields(item);
                 result.add(item);
             }
 
@@ -88,7 +87,7 @@ public class FileUtils {
         }
         return result;
     }
-    public boolean saveToXml(List<Laptop> items, File file){
+    public static boolean saveToXml(File file, List<Laptop> items){
         try {
             Laptops laptops = new Laptops();
             LocalDateTime dateTime = LocalDateTime.now(ZoneId.of("Europe/Warsaw"));

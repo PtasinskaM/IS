@@ -1,9 +1,10 @@
 package com.ptasinska.controller;
 
-import com.ptasinska.TxtFileUtils;
+import com.ptasinska.FileUtils;
 import com.ptasinska.data.Laptop;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -31,30 +32,66 @@ public class AppController implements Initializable {
     public TableView<Laptop> table;
     private final FileChooser chooser = new FileChooser();
     private final Pattern diskPattern = Pattern.compile("\\b\\d{1,4}GB|\\d{1,2}TB\\b");
-
     @FXML
-    public void onImportButtonClick() {
+    public void importFromTxt() {
+        chooser.setSelectedExtensionFilter(chooser.getExtensionFilters().get(1));
+        importFromFile();
+    }
+    @FXML
+    public void importFromXml() {
+        chooser.setSelectedExtensionFilter(chooser.getExtensionFilters().get(2));
+        importFromFile();
+    }
+    @FXML
+    public void exportToTxt() {
+        chooser.setSelectedExtensionFilter(chooser.getExtensionFilters().get(1));
+        chooser.setInitialFileName("export.txt");
+        exportToFile();
+    }
+    @FXML
+    public void exportToXml() {
+        chooser.setSelectedExtensionFilter(chooser.getExtensionFilters().get(2));
+        chooser.setInitialFileName("export.xml");
+        exportToFile();
+    }
+
+    public void importFromFile() {
         File file = chooser.showOpenDialog(new Stage());
         String filePath = "";
+        String ext = "";
         if(file!=null){
             filePath = file.getAbsolutePath();
-            List<Laptop> laptops = TxtFileUtils.readFromFile(filePath);
-            table.getItems().setAll(laptops);
+            ext = filePath.substring(filePath.length()-3);
+
+            if(ext.equals("txt")){
+                List<Laptop> laptops = FileUtils.readFromFile(filePath);
+                table.getItems().setAll(laptops);
+            }
+            else if(ext.equals("xml")){
+                List<Laptop> laptops = FileUtils.readFromXml(file);
+                table.getItems().setAll(laptops);
+            }
         }
     }
 
-    @FXML
-    public void onExportButtonClick() {
+
+    public void exportToFile() {
         File file = chooser.showSaveDialog(new Stage());
         String filePath = "";
+        String ext = "";
         if(file!=null){
             filePath = file.getAbsolutePath();
+            ext = filePath.substring(filePath.length()-3);
             List<Laptop> laptops = table.getItems();
-            boolean success = TxtFileUtils.saveToFile(filePath, laptops);
+            boolean success = false;
+
+            if(ext.equals("txt")) success = FileUtils.saveToFile(filePath, laptops);
+            else if(ext.equals("xml")) success = FileUtils.saveToXml(file, laptops);
+
             if (success) {
-                showDialog(Alert.AlertType.INFORMATION, "Zapisano", "Pomyślnie eksportowano do pliku txt");
+                showDialog(Alert.AlertType.INFORMATION, "Zapisano", "Pomyślnie eksportowano do pliku");
             } else {
-                showDialog(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas eksportu do pliku txt");
+                showDialog(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas eksportu do pliku");
             }
         }
     }
@@ -62,11 +99,14 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         chooser.setInitialFileName("export.txt");
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("*.*","*.txt");
-        chooser.setSelectedExtensionFilter(filter);
-        chooser.setInitialDirectory(new File("C:\\Users\\monik\\Documents\\studia\\V rok\\IS\\App\\src\\main\\resources"));
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Wszystkie pliki", "*.txt","*.xml"),
+                new FileChooser.ExtensionFilter("Pliki tekstowe (*.txt)", "*.txt"),
+                new FileChooser.ExtensionFilter("Pliki xml (*.xml)", "*.xml")
+        );
+
         table.setPlaceholder(new Label("Brak danych"));
-        String[] headers = TxtFileUtils.HEADERS;
+        String[] headers = FileUtils.HEADERS;
 
         //create table columns
         for (int i = 0; i < headers.length; i++) {
