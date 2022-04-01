@@ -28,6 +28,24 @@ public class Laptop {
     @XmlElement(name="disc_reader")
     private String driveType;
 
+    public Laptop(){
+        String[] data = new String[15];
+        for(int i=0;i<data.length;i++){
+            data[i] = "Brak informacji";
+        }
+        this.id = id;
+        this.manufacturer = data[0];
+        this.screen = Screen.builder().size(data[1]).resolution(data[2]).type(data[3]).touch(data[4]).build();
+        if(!data[6].equals("Brak informacji"))
+            this.processor = Processor.builder().name(data[5]).physicalCores(Integer.parseInt(data[6])).clockSpeed(data[7]).build();
+        else this.processor = Processor.builder().name(data[5]).physicalCores(0).clockSpeed(data[7]).build();
+        this.ramSize = data[8];
+        this.disc = Disc.builder().storage(data[9]).type(data[10]).build();
+        this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
+        this.os = data[13];
+        this.driveType = data[14];
+    }
+
     public Laptop(int id, String[] data) {
         for(int i=0;i<data.length;i++){
             if(data[i] == null) data[i] = "Brak informacji";
@@ -35,20 +53,13 @@ public class Laptop {
         }
         this.id = id;
         this.manufacturer = data[0];
-        this.screen.size = data[1];
-        this.screen.resolution = data[2];
-        this.screen.type = data[3];
-        this.screen.touch = data[4];
-        this.processor.name = data[5];
+        this.screen = Screen.builder().size(data[1]).resolution(data[2]).type(data[3]).touch(data[4]).build();
         if(!data[6].equals("Brak informacji"))
-            this.processor.physicalCores = Integer.parseInt(data[6]);
-        else this.processor.physicalCores = 0;
-        this.processor.clockSpeed = data[7];
+            this.processor = Processor.builder().name(data[5]).physicalCores(Integer.parseInt(data[6])).clockSpeed(data[7]).build();
+        else this.processor = Processor.builder().name(data[5]).physicalCores(0).clockSpeed(data[7]).build();
         this.ramSize = data[8];
-        this.disc.storage = data[9];
-        this.disc.type = data[10];
-        this.graphicCard.name = data[11];
-        this.graphicCard.memory = data[12];
+        this.disc = Disc.builder().storage(data[9]).type(data[10]).build();
+        this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
         this.os = data[13];
         this.driveType = data[14];
     }
@@ -61,20 +72,13 @@ public class Laptop {
         }
         this.id = id;
         this.manufacturer = data[0];
-        this.screen.size = data[1];
-        this.screen.resolution = data[2];
-        this.screen.type = data[3];
-        this.screen.touch = data[4];
-        this.processor.name = data[5];
+        this.screen = Screen.builder().size(data[1]).resolution(data[2]).type(data[3]).touch(data[4]).build();
         if(!data[6].equals("Brak informacji"))
-            this.processor.physicalCores = Integer.parseInt(data[6]);
-        else this.processor.physicalCores = 0;
-        this.processor.clockSpeed = data[7];
+        this.processor = Processor.builder().name(data[5]).physicalCores(Integer.parseInt(data[6])).clockSpeed(data[7]).build();
+        else this.processor = Processor.builder().name(data[5]).physicalCores(0).clockSpeed(data[7]).build();
         this.ramSize = data[8];
-        this.disc.storage = data[9];
-        this.disc.type = data[10];
-        this.graphicCard.name = data[11];
-        this.graphicCard.memory = data[12];
+        this.disc = Disc.builder().storage(data[9]).type(data[10]).build();
+        this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
         this.os = data[13];
         this.driveType = data[14];
     }
@@ -118,5 +122,26 @@ public class Laptop {
                 graphicCard.memory + ';' +
                 os + ';' +
                 driveType + ';';
+    }
+
+    public static Laptop checkObjectFields(Laptop item) {
+        String defValue = "Brak Informacji";
+        if(item.getScreen() == null){
+            item.screen = Screen.builder().size(defValue).resolution(defValue).type(defValue).touch(defValue).build();
+        }
+        else item = Screen.checkObjectFields(item);
+        if(item.getProcessor() == null){
+            item.processor = Processor.builder().name(defValue).physicalCores(0).clockSpeed(defValue).build();
+        }
+        else item = Processor.checkObjectFields(item);
+        if(item.getDisc() == null){
+            item.disc = Disc.builder().storage(defValue).type(defValue).build();
+        }
+        else item = Disc.checkObjectFields(item);
+        if(item.getGraphicCard() == null){
+            item.graphicCard = GraphicCard.builder().name(defValue).memory(defValue).build();
+        }
+        else item = GraphicCard.checkObjectFields(item);
+        return item;
     }
 }
