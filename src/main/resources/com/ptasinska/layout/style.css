@@ -1,6 +1,6 @@
 .table-row-cell,
 .table-row-cell:odd {
-    -fx-background-color: #fafafa;
+    -fx-background-color: #797979;
     -fx-text-fill: black;
 }
 

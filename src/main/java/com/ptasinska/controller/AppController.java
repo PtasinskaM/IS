@@ -36,7 +36,7 @@ public class AppController implements Initializable {
     public TableView<Laptop> table;
     private final FileChooser chooser = new FileChooser();
     private final Pattern diskPattern = Pattern.compile("\\b\\d{1,4}GB|\\d{1,2}TB\\b");
-    private final PersistenceService service = new PersistenceService();
+    private PersistenceService service;
     @FXML
     private Label info;
     private int newRecords = 0;
@@ -166,6 +166,7 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        service = new PersistenceService();
         chooser.setInitialFileName("export.txt");
         chooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Wszystkie pliki", "*.txt","*.xml"),

@@ -8,9 +8,9 @@ import java.util.List;
 
 public class PersistenceService {
 
-    public static String DB_URL = "jdbc:mysql://localhost:3306/integracja_systemow?serverTimezone=UTC&characterEncoding=UTF-8";
-    public static String DB_USER = "root";
-    public static String DB_PASSWORD = "";
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/integracja_systemow?serverTimezone=UTC&characterEncoding=UTF-8";
+    public static final String DB_USER = "root";
+    public static final String DB_PASSWORD = "";
     private Connection connection;
 
     public PersistenceService(){
@@ -22,7 +22,7 @@ public class PersistenceService {
         try {
             connection = DriverManager.getConnection(DB_URL,DB_USER,DB_PASSWORD);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return connection;
     }
