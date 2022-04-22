@@ -373,7 +373,6 @@ public class AppController implements Initializable {
         table.getItems().add(laptop);
         table.getSelectionModel().select(row, position.getTableColumn());
         table.scrollTo(laptop);
-        newRecords++;
         info.setText("Nowych rekordów: " + newRecords + ", duplikatów: " + dupRecords);
     }
 
