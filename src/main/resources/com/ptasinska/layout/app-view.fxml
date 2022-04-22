@@ -14,12 +14,12 @@
     <children>
         <HBox minHeight="50">
             <children>
-                <Button fx:id="importTxtButton" text="Importuj txt" prefHeight="50" prefWidth="100" onAction="#importFromTxt" />
-                <Button fx:id="importXmlButton" text="Importuj xml" prefHeight="50" prefWidth="100" onAction="#importFromXml" />
-                <Button fx:id="importDBButton" text="Importuj z BD" prefHeight="50" prefWidth="100" onAction="#importFromDB" />
-                <Button fx:id="exportTxtButton" text="Eksportuj txt" prefHeight="50" prefWidth="100" onAction="#exportToTxt"/>
-                <Button fx:id="exportXmlButton" text="Eksportuj xml" prefHeight="50" prefWidth="100" onAction="#exportToXml"/>
-                <Button fx:id="exportDBButton" text="Eksportuj do BD" prefHeight="50" prefWidth="100" onAction="#exportToDB"/>
+                <Button fx:id="importTxtButton" text="Importuj txt" prefHeight="50" prefWidth="120" onAction="#importFromTxt" />
+                <Button fx:id="importXmlButton" text="Importuj xml" prefHeight="50" prefWidth="120" onAction="#importFromXml" />
+                <Button fx:id="importDBButton" text="Importuj z BD" prefHeight="50" prefWidth="120" onAction="#importFromDB" />
+                <Button fx:id="exportTxtButton" text="Eksportuj txt" prefHeight="50" prefWidth="120" onAction="#exportToTxt"/>
+                <Button fx:id="exportXmlButton" text="Eksportuj xml" prefHeight="50" prefWidth="120" onAction="#exportToXml"/>
+                <Button fx:id="exportDBButton" text="Eksportuj do BD" prefHeight="50" prefWidth="120" onAction="#exportToDB"/>
 
             </children>
         </HBox>

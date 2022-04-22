@@ -1,11 +1,18 @@
 .table-row-cell,
 .table-row-cell:odd {
     -fx-background-color: #fafafa;
+    -fx-text-fill: black;
 }
 
+.table-row-cell:selected {
+    -fx-background-color: #aaf;
+    -fx-text-fill: white;
+}
 .table-row-cell:modified {
     -fx-background-color: #ffffff;
+    -fx-text-fill: black;
 }
 .table-row-cell:duplicated {
     -fx-background-color: #f00;
+    -fx-text-fill: white;
 }

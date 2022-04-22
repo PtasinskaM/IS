@@ -261,7 +261,22 @@ public class AppController implements Initializable {
                         event.getTableView().getItems().set(row, laptop);
                     }
                     //save changes
-                    else laptop.setValueAt(col, newValue);
+                    else {
+                        if(!event.getNewValue().equals(event.getOldValue())){
+                            laptop.setValueAt(col, newValue);
+                            if(!laptop.isModified()){
+                                laptop.setModified(true);
+                                newRecords++;
+                            }
+                            if(laptop.isDuplicated()){
+                                laptop.setDuplicated(false);
+                                dupRecords--;
+                            }
+                            info.setText("Nowych rekordów: " + newRecords + ", duplikatów: " + dupRecords);
+
+                        }
+
+                    }
                 }
             });
 
