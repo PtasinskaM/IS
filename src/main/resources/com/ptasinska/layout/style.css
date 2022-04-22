@@ -1,0 +1,11 @@
+.table-row-cell,
+.table-row-cell:odd {
+    -fx-background-color: #fafafa;
+}
+
+.table-row-cell:modified {
+    -fx-background-color: #ffffff;
+}
+.table-row-cell:duplicated {
+    -fx-background-color: #f00;
+}

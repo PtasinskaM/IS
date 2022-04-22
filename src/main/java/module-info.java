@@ -5,6 +5,7 @@ module com.ptasinska {
     requires org.kordamp.bootstrapfx.core;
     requires lombok;
     requires jakarta.xml.bind;
+    requires java.sql;
 
     opens com.ptasinska to javafx.fxml;
     exports com.ptasinska;

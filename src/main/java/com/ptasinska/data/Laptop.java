@@ -1,6 +1,7 @@
 package com.ptasinska.data;
 
 import jakarta.xml.bind.annotation.*;
+import javafx.beans.property.SimpleBooleanProperty;
 import lombok.*;
 
 @Data
@@ -28,6 +29,33 @@ public class Laptop {
     @XmlElement(name="disc_reader")
     private String driveType;
 
+    private SimpleBooleanProperty modified = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty duplicated = new SimpleBooleanProperty(false);
+
+    public boolean isModified() {
+        return modified.get();
+    }
+
+    public SimpleBooleanProperty modifiedProperty() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified.set(modified);
+    }
+
+    public boolean isDuplicated() {
+        return duplicated.get();
+    }
+
+    public SimpleBooleanProperty duplicatedProperty() {
+        return duplicated;
+    }
+
+    public void setDuplicated(boolean duplicated) {
+        this.duplicated.set(duplicated);
+    }
+
     public Laptop(){
         String[] data = new String[15];
         for(int i=0;i<data.length;i++){
@@ -44,6 +72,9 @@ public class Laptop {
         this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
         this.os = data[13];
         this.driveType = data[14];
+
+        this.modified.set(false);
+        this.duplicated.set(false);
     }
 
     public Laptop(int id, String[] data) {
@@ -62,6 +93,9 @@ public class Laptop {
         this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
         this.os = data[13];
         this.driveType = data[14];
+
+        this.modified.set(false);
+        this.duplicated.set(false);
     }
 
     //new row
@@ -81,6 +115,9 @@ public class Laptop {
         this.graphicCard = GraphicCard.builder().name(data[11]).memory(data[12]).build();
         this.os = data[13];
         this.driveType = data[14];
+
+        this.modified.set(false);
+        this.duplicated.set(false);
     }
 
     public void setValueAt(int column, String value){
@@ -122,6 +159,54 @@ public class Laptop {
                 graphicCard.memory + ';' +
                 os + ';' +
                 driveType + ';';
+    }
+
+    public String sqlInsert() {
+        return "INSERT INTO laptops VALUES (NULL, '" + manufacturer + "','" +
+                screen.size + "','" +
+                screen.resolution + "','" +
+                screen.type + "','" +
+                screen.touch + "','" +
+                processor.name + "','" +
+                processor.physicalCores + "','" +
+                processor.clockSpeed + "','" +
+                ramSize + "','" +
+                disc.storage + "','" +
+                disc.type + "','" +
+                graphicCard.name + "','" +
+                graphicCard.memory + "','" +
+                os + "','" +
+                driveType + "')";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Laptop laptop = (Laptop) o;
+
+        if (!manufacturer.equals(laptop.manufacturer)) return false;
+        if (!screen.equals(laptop.screen)) return false;
+        if (!processor.equals(laptop.processor)) return false;
+        if (!ramSize.equals(laptop.ramSize)) return false;
+        if (!disc.equals(laptop.disc)) return false;
+        if (!graphicCard.equals(laptop.graphicCard)) return false;
+        if (!os.equals(laptop.os)) return false;
+        return driveType.equals(laptop.driveType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = manufacturer.hashCode();
+        result = 31 * result + screen.hashCode();
+        result = 31 * result + processor.hashCode();
+        result = 31 * result + ramSize.hashCode();
+        result = 31 * result + disc.hashCode();
+        result = 31 * result + graphicCard.hashCode();
+        result = 31 * result + os.hashCode();
+        result = 31 * result + driveType.hashCode();
+        return result;
     }
 
     public static Laptop checkObjectFields(Laptop item) {

@@ -1,9 +1,12 @@
 package com.ptasinska.controller;
 
 import com.ptasinska.FileUtils;
+import com.ptasinska.PersistenceService;
 import com.ptasinska.data.Laptop;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,6 +22,7 @@ import javafx.util.Callback;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -32,6 +36,14 @@ public class AppController implements Initializable {
     public TableView<Laptop> table;
     private final FileChooser chooser = new FileChooser();
     private final Pattern diskPattern = Pattern.compile("\\b\\d{1,4}GB|\\d{1,2}TB\\b");
+    private final PersistenceService service = new PersistenceService();
+    @FXML
+    private Label info;
+    private int newRecords = 0;
+    private int dupRecords = 0;
+    private List<Laptop> laptops = null;
+
+
     @FXML
     public void importFromTxt() {
         chooser.setSelectedExtensionFilter(chooser.getExtensionFilters().get(1));
@@ -64,16 +76,72 @@ public class AppController implements Initializable {
             ext = filePath.substring(filePath.length()-3);
 
             if(ext.equals("txt")){
-                List<Laptop> laptops = FileUtils.readFromFile(filePath);
-                table.getItems().setAll(laptops);
+                laptops = FileUtils.readFromFile(filePath);
+
             }
             else if(ext.equals("xml")){
-                List<Laptop> laptops = FileUtils.readFromXml(file);
-                table.getItems().setAll(laptops);
+                laptops = FileUtils.readFromXml(file);
             }
+            compareData(laptops, table.getItems());
+            table.getItems().setAll(laptops);
+        }
+    }
+    public void importFromDB() {
+        laptops = service.select();
+        compareData(laptops, table.getItems());
+        table.getItems().setAll(laptops);
+    }
+
+    public void exportToDB() {
+        boolean success = false;
+        int savedRows = 0;
+        List<Laptop> unique = new ArrayList<>();
+        List<Laptop> fromDB = service.select();
+        if (fromDB.size() > table.getItems().size()) {
+            for (int i = 0; i < fromDB.size(); i++) {
+                Laptop item = table.getItems().get(i);
+                if (!fromDB.contains(item)) {
+                    unique.add(item);
+                    savedRows++;
+                }
+            }
+        } else {
+            for (int i = 0; i < table.getItems().size(); i++) {
+                Laptop item = table.getItems().get(i);
+                if (!fromDB.contains(item)) {
+                    unique.add(item);
+                    savedRows++;
+                }
+            }
+        }
+
+
+        success = service.insert(unique);
+        if (success) {
+            showDialog(Alert.AlertType.INFORMATION, "Zapisano", "Zapisano " + savedRows + " rekordów do bazy!");
+            importFromDB();
+        } else {
+            showDialog(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd przy zapisywaniu do bazy");
         }
     }
 
+    public void compareData(List<Laptop> newData, List<Laptop> oldData) {
+        dupRecords = 0;
+        newRecords = newData.size();
+        boolean setEmpty = oldData.size() == 0;
+        if (!setEmpty) {
+            for (int i = 0; i < newData.size(); i++) {
+                Laptop item = newData.get(i);
+                if (oldData.contains(item)) {
+                    item.setDuplicated(true);
+                    newData.set(i, item);
+                    dupRecords++;
+                    newRecords--;
+                }
+            }
+            info.setText("Nowych rekordów: " + newRecords + ", duplikatów: " + dupRecords);
+        }
+    }
 
     public void exportToFile() {
         File file = chooser.showSaveDialog(new Stage());
@@ -201,8 +269,48 @@ public class AppController implements Initializable {
         }
         table.setEditable(true);
         //add row on double click
-        table.setRowFactory(tableRow -> {
-            TableRow<Laptop> row = new TableRow<>();
+        table.setRowFactory(tv -> {
+            TableRow<Laptop> row = new TableRow<>() {
+                private final PseudoClass modifiedPC = PseudoClass.getPseudoClass("modified");
+                private final PseudoClass duplicatedPC = PseudoClass.getPseudoClass("duplicated");
+                private final ChangeListener<Boolean> modifyListener = (obs, wasModified, isNowModified) ->
+                        pseudoClassStateChanged(modifiedPC, isNowModified);
+
+                {
+                    itemProperty().addListener((obs, oldItem, newItem) -> {
+                        if (oldItem != null) {
+                            oldItem.modifiedProperty().removeListener(modifyListener);
+                        }
+                        if (newItem == null) {
+                            pseudoClassStateChanged(modifiedPC, false);
+                        } else {
+                            pseudoClassStateChanged(modifiedPC, newItem.isModified());
+                            newItem.modifiedProperty().addListener(modifyListener);
+                        }
+                    });
+
+                }
+
+                private final ChangeListener<Boolean> duplicateListener = (obs, wasDuplicated, isNowDuplicated) ->
+                        pseudoClassStateChanged(duplicatedPC, isNowDuplicated);
+
+                {
+                    itemProperty().addListener((obs, oldItem, newItem) -> {
+                        if (oldItem != null) {
+                            oldItem.duplicatedProperty().removeListener(duplicateListener);
+                        }
+                        if (newItem == null) {
+                            pseudoClassStateChanged(duplicatedPC, false);
+                        } else {
+                            pseudoClassStateChanged(duplicatedPC, newItem.isDuplicated());
+                            newItem.duplicatedProperty().addListener(duplicateListener);
+                        }
+                    });
+
+                }
+
+
+            };
             row.setOnMouseClicked(e -> {
                 if(e.getClickCount()==2 && (row.isEmpty())){
                     addNewRow();
@@ -226,6 +334,14 @@ public class AppController implements Initializable {
 
     private void removeRow() {
         table.getItems().remove(table.getSelectionModel().getSelectedItem());
+
+        if(table.getItems().get(table.getSelectionModel().getSelectedIndex()).isDuplicated()){
+            if(dupRecords>1) dupRecords--;
+        }
+        else if(newRecords>0) newRecords--;
+        info.setText("Nowych rekordów: " + newRecords + ", duplikatów: " + dupRecords);
+
+
         table.getSelectionModel().clearSelection();
         //update id
         for(int i=0;i<table.getItems().size();i++) table.getItems().get(i).setId(i+1);
@@ -235,10 +351,14 @@ public class AppController implements Initializable {
         TablePosition position = table.getFocusModel().getFocusedCell();
         int row = table.getItems().size();
         Laptop laptop = new Laptop(row+1);
+        laptop.setModified(false);
+        laptop.setDuplicated(false);
         table.getSelectionModel().clearSelection();
         table.getItems().add(laptop);
         table.getSelectionModel().select(row, position.getTableColumn());
         table.scrollTo(laptop);
+        newRecords++;
+        info.setText("Nowych rekordów: " + newRecords + ", duplikatów: " + dupRecords);
     }
 
     public void showDialog(Alert.AlertType type, String title, String text){
